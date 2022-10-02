@@ -4,6 +4,7 @@ import Toybox.System;
 import Toybox.WatchUi;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
+using Toybox.BluetoothLowEnergy;
 
 class MyMinimalFaceView extends WatchUi.WatchFace {
 
@@ -57,6 +58,15 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
             }
             dc.drawText(dc.getWidth()/2, dc.getHeight()*3/4, IconsFont, "9", Graphics.TEXT_JUSTIFY_CENTER);
         }
+        if (System.getDeviceSettings().connectionInfo[:bluetooth].state > 0) {
+            dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+            if (System.getDeviceSettings().connectionInfo[:bluetooth].state == 2) {
+                dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+            }
+            dc.drawText(dc.getWidth()*5/8, dc.getHeight()*3/4, IconsFont, "8", Graphics.TEXT_JUSTIFY_CENTER);
+        }
+        //dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        //dc.drawText(dc.getWidth()*3/8, dc.getHeight()*3/4, IconsFont, "3", Graphics.TEXT_JUSTIFY_CENTER);
         
     }
 
