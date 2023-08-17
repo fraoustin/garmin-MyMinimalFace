@@ -60,9 +60,9 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         }
         if (System.getDeviceSettings().connectionInfo[:bluetooth].state == 2) {
             dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(dc.getWidth()*5/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
         }
-        if (System.getDeviceSettings().phoneConnected == true) {
+        if (System.getDeviceSettings().connectionInfo[:bluetooth].state == 1) {
             dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
             dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "6", Graphics.TEXT_JUSTIFY_CENTER);
         }
