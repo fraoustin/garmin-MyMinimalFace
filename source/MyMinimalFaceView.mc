@@ -65,6 +65,13 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         
     }
 
+    function onPartialUpdate(dc as Dc) as Void {
+        if (System.getDeviceSettings().phoneConnected) {
+            dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+        }
+    }
+
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
     // memory.
