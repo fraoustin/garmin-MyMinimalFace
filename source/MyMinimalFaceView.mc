@@ -56,11 +56,13 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
             if (System.getSystemStats().battery < 5) {
                 dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
             }
-            dc.drawText(dc.getWidth()*3/8, dc.getHeight()*11/16, IconsFont, "9", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "9", Graphics.TEXT_JUSTIFY_CENTER);
         }
         if (System.getDeviceSettings().phoneConnected) {
             dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+            //dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.setPenWidth(5);
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2 - 5, Graphics.ARC_COUNTER_CLOCKWISE, 270-25, 270+25);
         }
         
     }
@@ -68,7 +70,9 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
     function onPartialUpdate(dc as Dc) as Void {
         if (System.getDeviceSettings().phoneConnected) {
             dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+            //dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.setPenWidth(5);
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2 - 5, Graphics.ARC_COUNTER_CLOCKWISE, 270-25, 270+25);
         }
     }
 
