@@ -5,7 +5,17 @@ import Toybox.WatchUi;
 import Toybox.Math;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
+using Toybox.ActivityMonitor;
+using Toybox.SensorHistory;
 
+function getIterator() {
+    // Check device for SensorHistory compatibility
+    if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory)) {
+        // Set up the method with parameters
+        return Toybox.SensorHistory.getBodyBatteryHistory({});
+    }
+    return null;
+}
 
 class MyMinimalFaceView extends WatchUi.WatchFace {
 
@@ -31,19 +41,25 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         var timeStringh = Lang.format("$1$", [clockTime.hour, ]);
         var timeStringm = Lang.format("$1$", [clockTime.min.format("%02d"), ]);
         var dateString = Lang.format("$1$ $2$", [clockTime.day_of_week, clockTime.day]);
-
+        var info = ActivityMonitor.getInfo();
+        var valueActiveMinute = info.activeMinutesWeek.total * 100 / info.activeMinutesWeekGoal;
+        var valueSteps = info.steps * 100 / info.stepGoal;        
+        var infoh = Activity.getActivityInfo();
+        var valueHeart = infoh.currentHeartRate; 
+        if (valueHeart == null){
+            valueHeart = 0;
+        } else {
+            valueHeart = valueHeart /2; //max heart 200 bpm        
+        }
+        var bbIterator = getIterator();
+        var sampleBb = bbIterator.next();
+        var valueBodyBattery = 0;
+        if (sampleBb != null) {
+            valueBodyBattery = sampleBb.data;
+        }
         View.onUpdate(dc);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        advanceModel(dc, timeStringh, timeStringm, dateString);
-        
-        // Call the parent onUpdate function to redraw the layout
-        if (System.getSystemStats().battery < 10) {
-            dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
-            if (System.getSystemStats().battery < 5) {
-                dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-            }
-            dc.drawText(dc.getWidth()*4/8, dc.getHeight()*11/16, IconsFont, "9", Graphics.TEXT_JUSTIFY_CENTER);
-        }        
+        advanceModel(dc, timeStringh, timeStringm, dateString, [[valueActiveMinute, Graphics.COLOR_ORANGE], [valueSteps, Graphics.COLOR_GREEN], [valueHeart, Graphics.COLOR_BLUE], [valueBodyBattery, Graphics.COLOR_PURPLE]]);
     }
 
     function simpleModel(dc as Dc, hour as Text, min as Text, date as Text) as Void {
@@ -53,16 +69,21 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         dc.drawText(dc.getWidth()/2, dc.getHeight()/4, Graphics.FONT_TINY, date, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
-    function advanceModel(dc as Dc, hour as Text, min as Text, date as Text) as Void {
+    function advanceModel(dc as Dc, hour as Text, min as Text, date as Text, values as Array) as Void {
         var sizeFont = 96;
         dc.drawText(dc.getWidth() -sizeFont, dc.getHeight()/2 - (sizeFont/2), BoldFont, hour, Graphics.TEXT_JUSTIFY_RIGHT);
         dc.drawText(dc.getWidth() -sizeFont, dc.getHeight()/2 - (sizeFont/2), RegularFont, min, Graphics.TEXT_JUSTIFY_LEFT);
         dc.drawText(dc.getWidth()/2 -20 + Math.sqrt((Math.pow(dc.getWidth()/2, 2) - Math.pow((sizeFont/2), 2))), dc.getHeight()/2 - (sizeFont/2), Graphics.FONT_TINY, date, Graphics.TEXT_JUSTIFY_RIGHT);
-        lineColor(dc, Graphics.COLOR_ORANGE, 100, 270, 35, dc.getHeight()/2 -15, 10);
-        lineColor(dc, Graphics.COLOR_GREEN, 100, 270, 50, dc.getHeight()/2 -30, 10);
-        lineColor(dc, Graphics.COLOR_BLUE, 100, 270, 50, dc.getHeight()/2 -45, 10);
-        lineColor(dc, Graphics.COLOR_PURPLE, 100, 270, 50, dc.getHeight()/2 -60, 10);
-        System.println(Math.toDegrees(Math.acos(Math.sqrt((Math.pow(dc.getWidth()/2, 2) - Math.pow((sizeFont/2 + 20), 2)))/(dc.getWidth()/2))));
+        var initLevel = 15;
+        for (var i = 0; i < values.size(); i++) {
+            lineColor(dc, values[i][1], values[i][0], 270, Math.toDegrees(Math.asin((sizeFont/2 + 10) *1.0/ (dc.getHeight()/2 -initLevel))), dc.getHeight()/2 -initLevel, 10);
+            initLevel = initLevel + 15;
+        }
+
+        //lineColor(dc, Graphics.COLOR_ORANGE, 100, 270, Math.toDegrees(Math.asin((sizeFont/2 + 10) *1.0/ (dc.getHeight()/2 -15))), dc.getHeight()/2 -15, 10);
+        //lineColor(dc, Graphics.COLOR_GREEN, 100, 270, Math.toDegrees(Math.asin((sizeFont/2 + 10) *1.0/ (dc.getHeight()/2 -30))), dc.getHeight()/2 -30, 10);
+        //lineColor(dc, Graphics.COLOR_BLUE, 100, 270, Math.toDegrees(Math.asin((sizeFont/2 + 10) *1.0/ (dc.getHeight()/2 -45))), dc.getHeight()/2 -45, 10);
+        //lineColor(dc, Graphics.COLOR_PURPLE, 100, 270, Math.toDegrees(Math.asin((sizeFont/2 + 10) *1.0/ (dc.getHeight()/2 -60))), dc.getHeight()/2 -60, 10);
     }
 
     function lineColor(dc as Dc, color as Graphics.ColorValue, value as Float, start as Decimal, end as Decimal, level as Number, penWidth as Number) as Void {
@@ -76,7 +97,12 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         if (value > 100){
             val = 100;
         }
-        dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, level, Graphics.ARC_CLOCKWISE, start, start - delta * val);
+        end = start - delta * val;
+        if (end > start) {
+            dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, level, Graphics.ARC_CLOCKWISE, start, end);
+            dc.fillCircle(Math.cos(Math.toRadians(start))*level + dc.getWidth()/2, Math.sin(Math.toRadians(start))*level*-1 + dc.getHeight()/2, penWidth/2 -1);
+            dc.fillCircle(Math.cos(Math.toRadians(end))*level + dc.getWidth()/2, Math.sin(Math.toRadians(end))*level*-1 + dc.getHeight()/2, penWidth/2 -1);
+        }
     }
 
     function onPartialUpdate(dc as Dc) as Void {
