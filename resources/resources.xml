@@ -1,7 +1,7 @@
 <resources>
     <fonts>
-        <font id="IconsFont" filename="fonts/MaterialIcon32.fnt"
-        	antialias="true" filter="0123456789:;@ABPQRSTUVWXY." />
+        <font id="IconsFont" filename="fonts/MaterialIcon32.fnt" antialias="true" />
+        <font id="LogoFont" filename="fonts/logo.fnt" antialias="true" />
         <font id="BoldFontLarge" filename="fonts/TitilliumSemiBold128.fnt" antialias="true"/>
         <font id="RegularFontLarge" filename="fonts/Titillium128.fnt" antialias="true"/>
         <font id="BoldFont" filename="fonts/TitilliumSemiBold96.fnt" antialias="true"/>
