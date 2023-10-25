@@ -2,6 +2,5 @@
     <fonts>
         <font id="BoldFontLarge" filename="fonts/TitilliumSemiBold128.fnt" antialias="true"/>
         <font id="RegularFontLarge" filename="fonts/Titillium128.fnt" antialias="true"/>
-        <font id="LogoFont" filename="fonts/logo.fnt" antialias="true" />
     </fonts>
 </resources>
