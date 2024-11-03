@@ -39,10 +39,10 @@ class MyMinimalFaceView extends WatchUi.WatchFace {
         var dateString = Lang.format("$1$ $2$", [clockTime.day_of_week, clockTime.day]);
         var value = System.getSystemStats().battery;
         var color = Graphics.COLOR_WHITE;
-        if (value < 20) {
+        if (value < 10) {
             color = Graphics.COLOR_ORANGE;
         }
-        if (value < 10) {
+        if (value < 5) {
             color = Graphics.COLOR_RED;
         }
 
